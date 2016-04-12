@@ -11,6 +11,13 @@ module Hangman
   end
 
   class Board
+    def initialize
+      @word = select_word
+    end
+
+    def select_word
+
+    end
   end
 
   class Game
