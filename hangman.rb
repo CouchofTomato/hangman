@@ -2,6 +2,14 @@
 # word, phrase or sentence and the other tries to guess it by suggesting letters
 # or numbers, within a certain number of guesses.
 module Hangman
+
+  class words_array
+    attr_accessor :word_array
+    def initialize
+      load_words
+    end
+    
+  end
   # The player class stores the players name
   class Player
     attr_accessor :name
@@ -12,30 +20,24 @@ module Hangman
 
   class Board
     def initialize
-      @word = select_word
+      set_word
     end
 
-    def select_word
-
+    def set_word
     end
   end
 
   class Game
-    attr_accessor :player
+    attr_accessor :player, :board
+
     def prepare_player
       puts "Please enter your name:"
       name = gets.chomp
       @player = Player.new(:name => name)
     end
+
+    def create_board
+      @board = Board.new
+    end
   end
 end
-
-#Classes
-## Game
-#### number of guesses
-
-## Player
-#### name
-
-## Board
-#### word
