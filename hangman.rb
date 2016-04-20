@@ -21,6 +21,12 @@ module Hangman
   end
 
   class Game
+    attr_accessor :player
+    def prepare_player
+      puts "Please enter your name:"
+      name = gets.chomp
+      @player = Player.new(:name => name)
+    end
   end
 end
 
