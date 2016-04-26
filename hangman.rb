@@ -3,24 +3,6 @@
 # or numbers, within a certain number of guesses.
 module Hangman
 
-  class WordsArray
-    attr_accessor :word_array
-    
-    def initialize
-      @word_array = []
-      load_words
-    end
-
-    def load_words
-      File.open("5desk.txt", "r") do |f|
-        f.each_line do |line|
-          if line.length >= 5 && line.length <= 12
-            @word_array << line.downcase.chomp
-          end
-        end
-      end
-    end
-  end
   # The player class stores the players name
   class Player
     attr_accessor :name
@@ -30,12 +12,28 @@ module Hangman
   end
 
   class Board
+    attr_reader :word_array, :word
+
     def initialize
-      set_word
+      @word_array = []
+      create_word_array
+      @word = set_word
+    end
+
+    def create_word_array
+      File.open("5desk.txt", "r") do |f|
+        f.each_line do |line|
+          if line.length >= 5 && line.length <= 12
+            @word_array << line.downcase.chomp
+          end
+        end
+      end
     end
 
     def set_word
+      @word_array.sample
     end
+
   end
 
   class Game
@@ -51,6 +49,5 @@ module Hangman
       @board = Board.new
     end
   end
+  
 end
-
-f = Hangman::WordsArray.new
