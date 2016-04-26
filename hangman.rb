@@ -13,9 +13,11 @@ module Hangman
 
   class Board
     attr_reader :word_array, :word
+    attr_accessor :guessed_letters, :hidden_word
 
     def initialize
       @word_array = []
+      @guessed_letters = []
       create_word_array
       @word = set_word
     end
@@ -42,6 +44,10 @@ module Hangman
     def prepare_player
       puts "Please enter your name:"
       name = gets.chomp
+      create_player(name)
+    end
+
+    def create_player(name)
       @player = Player.new(:name => name)
     end
 
@@ -49,5 +55,5 @@ module Hangman
       @board = Board.new
     end
   end
-  
+
 end
