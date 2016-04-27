@@ -5,7 +5,7 @@ module Hangman
 
   # The player class stores the players name
   class Player
-    attr_accessor :name
+    attr_reader :name
     def initialize(args)
       @name = args[:name]
     end
@@ -13,7 +13,7 @@ module Hangman
 
   class Board
     attr_reader :word_array, :word
-    attr_accessor :guessed_letters, :hidden_word
+    attr_accessor :guessed_letters
 
     def initialize
       @word_array = []
@@ -22,6 +22,10 @@ module Hangman
       @word = set_word
     end
 
+    def guess(letter)
+    end
+
+    private
     def create_word_array
       File.open("5desk.txt", "r") do |f|
         f.each_line do |line|
@@ -40,6 +44,20 @@ module Hangman
 
   class Game
     attr_accessor :player, :board
+
+    def initialize
+      prepare_player
+      game_loop
+    end
+
+    private
+
+    def game_loop
+      game_won = false
+      while !game_won
+        get_guess
+      end
+    end
 
     def prepare_player
       puts "Please enter your name:"
