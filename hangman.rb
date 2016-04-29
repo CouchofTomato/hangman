@@ -43,9 +43,10 @@ module Hangman
   end
 
   class Game
-    attr_accessor :player, :board
+    attr_accessor :player, :board, :number_of_guesses
 
     def initialize
+      @number_of_guesses = 0
       prepare_player
       game_loop
     end
@@ -55,7 +56,7 @@ module Hangman
     def game_loop
       game_won = false
       while !game_won
-        get_guess
+        guess = get_guess
       end
     end
 
@@ -71,6 +72,10 @@ module Hangman
 
     def create_board
       @board = Board.new
+    end
+
+    def get_guess
+      
     end
   end
 
