@@ -56,7 +56,7 @@ module Hangman
     def game_loop
       game_won = false
       while !game_won
-        guess = get_guess
+        player_guess
       end
     end
 
@@ -74,9 +74,10 @@ module Hangman
       @board = Board.new
     end
 
-    def get_guess
+    def player_guess
       
     end
+
   end
 
 end
