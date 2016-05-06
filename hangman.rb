@@ -23,6 +23,7 @@ module Hangman
     end
 
     def guess(letter)
+      @word_array << guess
     end
 
     private
@@ -56,7 +57,8 @@ module Hangman
     def game_loop
       game_won = false
       while !game_won
-        player_guess
+        guess = player_guess
+        is_a_winner = send_guess_to_board(guess)
       end
     end
 
@@ -75,7 +77,32 @@ module Hangman
     end
 
     def player_guess
-      
+      loop do
+        print "Please enter a letter: "
+        guess = gets.downcase.chomp
+        if good_guess?(guess)
+          break
+        end
+      end
+    end
+
+    def good_guess?(guess)
+      if letter?(guess) && not_already_chosen?(guess)
+        return true
+      end
+      return false
+    end
+
+    def letter?(guess)
+      guess =~ /[A-Za-z]/
+    end
+
+    def not_already_chosen?(guess)
+      @board.guessed_letters.include?(guess)
+    end
+
+    def send_guess_to_board(guess)
+      @board.guess(guess)
     end
 
   end
