@@ -23,8 +23,20 @@ module Hangman
     end
 
     def guess(letter)
-      @word_array << guess
-      @word.split().all? {|letter| @word_array.include?(letter)}
+      @guessed_letters << letter
+      @word.split("").all? {|letter| @guessed_letters.include?(letter)}
+    end
+
+    def display_board(number_of_wrong_guesses)
+      print "#{@word} \n\n"
+      print "\nWord: "
+      @word.split("").each {|letter| print @guessed_letters.include?(letter) ? "#{letter} " : "_ "}
+      print "\n"
+      print "Guessed letters: "
+      @guessed_letters.each {|letter| print letter + " "}
+      print "\n"
+      print "Number of Guesses: #{number_of_wrong_guesses}"
+      print "\n\n"
     end
 
     private
@@ -48,7 +60,8 @@ module Hangman
     attr_accessor :player, :board, :number_of_guesses
 
     def initialize
-      @number_of_guesses = 0
+      create_board
+      @number_of_wrong_guesses = 0
       prepare_player
       game_loop
     end
@@ -57,12 +70,12 @@ module Hangman
 
     def game_loop
       game_finished = false
-      number_of_turns = 0
       while !game_finished
+        @board.display_board(@number_of_wrong_guesses)
         guess = player_guess
         is_a_winner = send_guess_to_board(guess)
-        number_of_turns + 1
-        if is_a_winner || number_of_turns == 20
+        @number_of_wrong_guesses += 1 if !@board.word.split("").include?(guess)
+        if is_a_winner || @number_of_wrong_guesses == 20
           game_finished = true
           is_a_winner ? game_won : game_lost
         end
@@ -85,13 +98,15 @@ module Hangman
     end
 
     def player_guess
-      loop do
+      good_guess = false
+      while !good_guess
         print "Please enter a letter: "
         guess = gets.downcase.chomp
         if good_guess?(guess)
-          break
+          good_guess = true
         end
       end
+      guess
     end
 
     def good_guess?(guess)
@@ -102,11 +117,19 @@ module Hangman
     end
 
     def letter?(guess)
-      guess =~ /[A-Za-z]/
+      if guess =~ /[A-Za-z]/ && guess.length == 1
+        return true
+      else
+        return false
+      end
     end
 
     def not_already_chosen?(guess)
-      @board.guessed_letters.include?(guess)
+      if @board.guessed_letters.include?(guess)
+        return false
+      else
+        return true
+      end
     end
 
     def send_guess_to_board(guess)
@@ -135,3 +158,5 @@ module Hangman
   end
 
 end
+
+Hangman::Game.new
