@@ -24,6 +24,7 @@ module Hangman
 
     def guess(letter)
       @word_array << guess
+      @word.split().all? {|letter| @word_array.include?(letter)}
     end
 
     private
@@ -55,11 +56,18 @@ module Hangman
     private
 
     def game_loop
-      game_won = false
-      while !game_won
+      game_finished = false
+      number_of_turns = 0
+      while !game_finished
         guess = player_guess
         is_a_winner = send_guess_to_board(guess)
+        number_of_turns + 1
+        if is_a_winner || number_of_turns == 20
+          game_finished = true
+          is_a_winner ? game_won : game_lost
+        end
       end
+      play_again
     end
 
     def prepare_player
@@ -102,7 +110,26 @@ module Hangman
     end
 
     def send_guess_to_board(guess)
-      @board.guess(guess)
+      winner = @board.guess(guess)
+      winner == true ? true : false
+    end
+
+    def game_won
+      puts "WOOHOO. YOU ARE A WINNER. YOU'RE SO AWESOME. TOUCH ME!"
+    end
+
+    def game_lost
+      puts "Sorry. You didn't win this time. Why not try again?"
+    end
+
+    def play_again
+      puts "Would you like to play again? [Y/N]"
+      response = gets.downcase.chomp
+      if response == "y"
+        Hangman::Game.new
+      else
+        exit
+      end
     end
 
   end
