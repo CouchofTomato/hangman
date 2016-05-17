@@ -12,13 +12,11 @@ module Hangman
   end
 
   class Board
-    attr_reader :word_array, :word
+    attr_reader :word
     attr_accessor :guessed_letters
 
     def initialize
-      @word_array = []
       @guessed_letters = []
-      create_word_array
       @word = set_word
     end
 
@@ -37,21 +35,6 @@ module Hangman
       print "\n"
       print "Number of Guesses: #{number_of_wrong_guesses}"
       print "\n\n"
-    end
-
-    private
-    def create_word_array
-      File.open("5desk.txt", "r") do |f|
-        f.each_line do |line|
-          if line.length >= 5 && line.length <= 12
-            @word_array << line.downcase.chomp
-          end
-        end
-      end
-    end
-
-    def set_word
-      @word_array.sample
     end
 
   end
@@ -160,3 +143,76 @@ module Hangman
 end
 
 Hangman::Game.new
+
+module Hangman
+
+  class Player
+    attr_reader :name
+    def initialize(args)
+      @name = args[:name]
+    end
+  end
+
+  class Board
+  end
+
+  class Game
+
+    attr_accessor :word_creator
+
+    def initialize
+      @word_creator = Hangman::WordSelecter.new
+      game_loop
+    end
+
+    private
+
+    def game_loop
+      game_running = true
+      while game_running
+        start_menu
+      end
+    end
+
+    def start_menu
+      correct_menu_option = false
+      while !correct_menu_option
+        puts "----------------HANGMAN----------------"
+        puts "Please select an option:"
+        puts "1: New Game"
+        puts "2: Load Game"
+        puts "3: Exit"
+        response = gets.chomp
+        if response > 0 && response < 4
+          correct_menu_option = true
+        end
+      end
+      response
+    end
+
+  end
+
+  # class for creating a suitable array of words and selecting a word for the game
+  class WordSelecter
+    attr_reader :word_array
+
+    def initialize
+      word_array = []
+      create_word_array
+    end
+
+    def set_word
+      @word_array.sample
+    end
+
+    private
+    def create_word_array
+      File.open("5desk.txt", "r") do |f|
+        f.each_line do |line|
+          if line.chomp.length >= 5 && line.chomp.length <= 12
+            @word_array << line.downcase.chomp
+          end
+        end
+      end
+    end
+end
