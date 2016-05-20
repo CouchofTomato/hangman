@@ -1,6 +1,7 @@
 # Hangman is a guessing game for two or more players. One player thinks of a
 # word, phrase or sentence and the other tries to guess it by suggesting letters
 # or numbers, within a certain number of guesses.
+=begin
 module Hangman
 
   # The player class stores the players name
@@ -143,6 +144,7 @@ module Hangman
 end
 
 Hangman::Game.new
+=end
 
 module Hangman
 
@@ -170,26 +172,49 @@ module Hangman
     def game_loop
       game_running = true
       while game_running
-        start_menu
       end
     end
+  end
 
-    def start_menu
-      correct_menu_option = false
-      while !correct_menu_option
-        puts "----------------HANGMAN----------------"
-        puts "Please select an option:"
-        puts "1: New Game"
-        puts "2: Load Game"
-        puts "3: Exit"
-        response = gets.chomp
-        if response > 0 && response < 4
-          correct_menu_option = true
-        end
-      end
-      response
+  #Creates a menu for new game, load and save operations
+  class Menu
+
+    attr_accessor :file_array
+
+    def initialize
+      @file_array = []
+      create_file_array
     end
 
+    def initial_menu
+      puts "-----------MENU-----------"
+      puts "\nPlease select an option"
+      puts "1: New Game"
+      puts "2: Load Game"
+      puts "--------------------------"
+    end
+
+    def ingame_menu
+    end
+
+    def save_game(args)
+    end
+
+    def load_game(args)
+    end
+
+    def new_game
+      Hangman::Game.new
+    end
+
+    private
+
+    def create_file_array
+      Dir.foreach("game_saves") do |file|
+        next if file == '.' or file == '..'
+        @file_array << file
+      end
+    end
   end
 
   # class for creating a suitable array of words and selecting a word for the game
@@ -215,4 +240,7 @@ module Hangman
         end
       end
     end
+  end
 end
+
+
