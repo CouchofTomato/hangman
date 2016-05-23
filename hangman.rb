@@ -156,58 +156,40 @@ module Hangman
   end
 
   class Board
+
+    def initialize(args)
+    end
+
   end
 
   class Game
 
-    attr_accessor :word_creator
-
-    def initialize
-      @word_creator = Hangman::WordSelecter.new
-      game_loop
-    end
-
-    private
-
-    def game_loop
-      game_running = true
-      while game_running
-      end
-    end
-  end
-
-  #Creates a menu for new game, load and save operations
-  class Menu
-
-    attr_accessor :file_array
+    attr_accessor :word_creator, :menu, :file_array
+    attr_reader :word
 
     def initialize
       @file_array = []
-      create_file_array
-    end
-
-    def initial_menu
-      puts "-----------MENU-----------"
-      puts "\nPlease select an option"
-      puts "1: New Game"
-      puts "2: Load Game"
-      puts "--------------------------"
-    end
-
-    def ingame_menu
-    end
-
-    def save_game(args)
-    end
-
-    def load_game(args)
-    end
-
-    def new_game
-      Hangman::Game.new
+      initial_menu
+      response = menu_response
+      if response == 1
+        new_game
+      else
+        load_game
+      end
     end
 
     private
+
+    def start_game
+    end
+
+    def create_word
+      Hangman::WordSelecter.new.set_word
+    end
+
+    def create_board(args)
+      @board = Hangman::Board.new(args)
+    end
 
     def create_file_array
       Dir.foreach("game_saves") do |file|
@@ -215,6 +197,58 @@ module Hangman
         @file_array << file
       end
     end
+
+    def initial_menu
+      puts "\n-----------MENU-----------"
+      puts "Please select an option"
+      puts "1: New Game"
+      puts "2: Load Game"
+      puts "--------------------------\n"
+    end
+
+    def new_game
+      word = create_word
+      prepare_player
+      create_board(:word => word :guessed_letters => [])
+      start_game
+    end
+
+    def save_game(args)
+    end
+
+    def load_game
+      create_file_array
+      game = choose_game
+    end
+
+    def choose_game
+      puts "Please enter the game to load by choosing the relevant number"
+      @file_array.each_with_index {|index, game| puts "#{index}: #{game}"}
+    end
+
+    def menu_response
+      good_response = false
+      while !good_response
+        response = gets.chomp.to_i
+        if response == 1 || response == 2
+          good_response = true
+        else
+          puts "\nPlease enter either 1 for a new game or 2 to load a saved game"
+        end
+      end
+      response
+    end
+
+    def prepare_player
+      puts "Please enter your name:"
+      name = gets.chomp
+      create_player(name)
+    end
+
+    def create_player(name)
+      @player = Player.new(:name => name)
+    end
+
   end
 
   # class for creating a suitable array of words and selecting a word for the game
@@ -241,6 +275,7 @@ module Hangman
       end
     end
   end
+
 end
 
-
+Hangman::Game.new
