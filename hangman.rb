@@ -1,10 +1,5 @@
-# Hangman is a guessing game for two or more players. One player thinks of a
-# word, phrase or sentence and the other tries to guess it by suggesting letters
-# or numbers, within a certain number of guesses.
-=begin
 module Hangman
 
-  # The player class stores the players name
   class Player
     attr_reader :name
     def initialize(args)
@@ -16,9 +11,9 @@ module Hangman
     attr_reader :word
     attr_accessor :guessed_letters
 
-    def initialize
-      @guessed_letters = []
-      @word = set_word
+    def initialize(args)
+      @word = args[:word]
+      @guessed_letters = args[:guessed_letters]
     end
 
     def guess(letter)
@@ -27,30 +22,39 @@ module Hangman
     end
 
     def display_board(number_of_wrong_guesses)
-      print "#{@word} \n\n"
       print "\nWord: "
       @word.split("").each {|letter| print @guessed_letters.include?(letter) ? "#{letter} " : "_ "}
       print "\n"
       print "Guessed letters: "
       @guessed_letters.each {|letter| print letter + " "}
       print "\n"
-      print "Number of Guesses: #{number_of_wrong_guesses}"
+      print "Number of wrong guesses: #{number_of_wrong_guesses}"
       print "\n\n"
     end
-
   end
 
   class Game
-    attr_accessor :player, :board, :number_of_guesses
+
+    attr_accessor :word_creator, :menu, :file_array, :number_of_wrong_guesses, :board, :player
+    attr_reader :word
 
     def initialize
-      create_board
-      @number_of_wrong_guesses = 0
-      prepare_player
-      game_loop
+      @file_array = []
+      initial_menu
+      response = menu_response
+      if response == 1
+        new_game
+      else
+        load_game
+      end
     end
 
     private
+
+    def start_game(args)
+      @number_of_wrong_guesses = args[:number_of_wrong_guesses]
+      game_loop
+    end
 
     def game_loop
       game_finished = false
@@ -63,22 +67,21 @@ module Hangman
           game_finished = true
           is_a_winner ? game_won : game_lost
         end
+        puts "would you like to save the game?"
+        response = gets.chomp.downcase
+        if response == "y"
+          save_game(:name => @player.name, :word => @board.word, 
+            :guessed_letters => @board.guessed_letters, 
+            :number_of_wrong_guesses => @number_of_wrong_guesses)
+          puts "would you like to continue or end the game?"
+          puts "press 1 to exit or any other key to continue"
+          response = gets.chomp
+          if response == "1"
+            exit
+          end
+        end
       end
       play_again
-    end
-
-    def prepare_player
-      puts "Please enter your name:"
-      name = gets.chomp
-      create_player(name)
-    end
-
-    def create_player(name)
-      @player = Player.new(:name => name)
-    end
-
-    def create_board
-      @board = Board.new
     end
 
     def player_guess
@@ -139,50 +142,6 @@ module Hangman
       end
     end
 
-  end
-
-end
-
-Hangman::Game.new
-=end
-
-module Hangman
-
-  class Player
-    attr_reader :name
-    def initialize(args)
-      @name = args[:name]
-    end
-  end
-
-  class Board
-
-    def initialize(args)
-    end
-
-  end
-
-  class Game
-
-    attr_accessor :word_creator, :menu, :file_array
-    attr_reader :word
-
-    def initialize
-      @file_array = []
-      initial_menu
-      response = menu_response
-      if response == 1
-        new_game
-      else
-        load_game
-      end
-    end
-
-    private
-
-    def start_game
-    end
-
     def create_word
       Hangman::WordSelecter.new.set_word
     end
@@ -209,21 +168,50 @@ module Hangman
     def new_game
       word = create_word
       prepare_player
-      create_board(:word => word :guessed_letters => [])
-      start_game
+      create_board(:word => word, :guessed_letters => [])
+      start_game(:number_of_wrong_guesses => 0)
     end
 
     def save_game(args)
+      guessed_letters = args[:guessed_letters].join()
+      puts "Please enter a name for the file"
+      response = gets.chomp
+      response = "#{response}.txt"
+      File.open("game_saves/#{response}","w") do |infile|
+        infile.puts "#{args[:name]}"
+        infile.puts "#{args[:word]}"
+        infile.puts "#{guessed_letters}"
+        infile.puts "#{args[:number_of_wrong_guesses]}"
+      end
     end
 
     def load_game
       create_file_array
       game = choose_game
+      game_to_load = file_array[game]
+      game_array = []
+      File.open("game_saves/#{game_to_load}", "r") do |infile|
+        while line = infile.gets
+          game_array << line.chomp
+        end
+      end
+      create_player(game_array[0])
+      create_board(:word => game_array[1], :guessed_letters => game_array[2].split(""))
+      start_game(:number_of_wrong_guesses => game_array[3].to_i)
     end
 
     def choose_game
       puts "Please enter the game to load by choosing the relevant number"
       @file_array.each_with_index {|index, game| puts "#{index}: #{game}"}
+      good_response = false
+      while !good_response
+        print "response: "
+        response = gets.chomp.to_i
+        if response >= 0 && response < @file_array.length
+          good_response = true
+        end
+      end
+      response.to_i
     end
 
     def menu_response
@@ -256,7 +244,7 @@ module Hangman
     attr_reader :word_array
 
     def initialize
-      word_array = []
+      @word_array = []
       create_word_array
     end
 
@@ -275,7 +263,6 @@ module Hangman
       end
     end
   end
-
 end
 
 Hangman::Game.new
